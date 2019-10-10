@@ -13,6 +13,7 @@ This project is designed to see the relation between particular team stats and t
 ### 1. Discovery and Data Preparation
 
 This deliverable provides a basic description of the basketball dataset as well as setting up the data for future questions to be answered.
+
 [First deliverable](deliverable1.Rmd)
 
 ### 2. Model Planning and Building
