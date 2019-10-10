@@ -1,0 +1,70 @@
+---
+title: "Discovery and Data Prep"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Intro
+
+The general topic that I have chosen revolves around sports. I am an avid fan of sports and play a lot of sports in my free time. One of those sports is basketball, which is the sport that I will be focusing on for this project.
+
+## The Data
+
+The dataset that I have chosen to work with for the first deliverable contains information about different basketball teams for each year ranging from 1937 to 2011
+
+### Dataset Initialization
+
+Here I am going to load in the dataset into the variable named basketball.
+```{R}
+suppressMessages(library(tidyverse))
+basketball <- read.csv("basketball_teams.csv")
+```
+
+To show that the dataset meets the required size/variables, the next few segments will parse that information out.
+
+Total Observations:
+```{R}
+nrow(basketball)
+```
+
+Total Number of Variables (descriptions of these variables will be provided further down):
+```{R}
+ncol(basketball)
+```
+
+
+### The Source
+
+The dataset that I have chosen comes from the website Kaggle. In the description it is said to have been taken from Open Source Sports, but the website provided does not work and there isn't a lot of information of them online. The Open Source Sports organization on Kaggle doesn't pull up anything. One thing mentioned in the description is that the database is copyrighted by Sean Lahman. He is a reporter for the USA Today Network and has focused his work around sports statistics and creating historical databases. One limitation is that because there is no true source that I could find, the data cannot be validated based on other work.
+
+### Variables
+
+There are a lot of variables contained in this dataset with the majority of them being statistical data. Because some statistics didn't exist or weren't kept track of, some values will be blank or will take on the value '0'. This will primarily take place in the early years, moslty prior to 1979. Below, I have produced all of the different variables.
+```{R}
+colnames(basketball)
+```
+
+At first glance, the extensive list may seem daunting, but once you dive in, it isn't too bad to understand.
+
+#### Categorical Variables
+The categorical variables that this dataset contains are:
+- lgID (League)  
+- tmID (Team)  
+- franchID (Current franchise as of 2011)  
+- confID (Conference)  
+- divID (division)  
+- rank (Division Rank)  
+- confRank (COnference Rank)  
+- Playoff (Round Reached in Playoffs)  
+- name (Team Name)  
+
+#### Continuous Variables
+
+The Continuous Variables are all of the rest of them which includes 51 variables. The variables starting with 'o_' refer to offensive statistics whereas variables starting with 'd_' refer to defensive statistics. 
+
+
+
+
+
+
