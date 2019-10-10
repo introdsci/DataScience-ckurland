@@ -1,6 +1,6 @@
 ---
-title: " " #replace the title with something short and catchy to represent your project
-subtitle: "____'s Data Science Portfolio" #replace blank with your name
+title: "Basketball" 
+subtitle: "Connor's Data Science Portfolio"
 output:
   html_document:
     df_print: paged
@@ -8,11 +8,12 @@ output:
 
 ## Abstract
 
-In under 250 words give a brief summary of the project so far.
+This project is designed to see the relation between particular team stats and that teams subsequent playoff finish.
 
 ### 1. Discovery and Data Preparation
 
-Provide a one-sentence introduction with what is covered by the first deliverable along with a link to another html page that gives the details.
+This deliverable provides a basic description of the basketball dataset as well as setting up the data for future questions to be answered.
+[First deliverable](deliverable1.Rmd)
 
 ### 2. Model Planning and Building
 
