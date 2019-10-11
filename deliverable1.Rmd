@@ -36,7 +36,7 @@ ncol(basketball)
 
 ### The Source
 
-The dataset that I have chosen comes from the website Kaggle. In the description it is said to have been taken from Open Source Sports, but the website provided does not work and there isn't a lot of information of them online. The Open Source Sports organization on Kaggle doesn't pull up anything. One thing mentioned in the description is that the database is copyrighted by Sean Lahman. He is a reporter for the USA Today Network and has focused his work around sports statistics and creating historical databases. One limitation is that because there is no true source that I could find, the data cannot be validated based on other work.
+The dataset that I have chosen comes from the website Kaggle. In the description it is said to have been taken from Open Source Sports, but the website provided does not work and there isn't a lot of information of them online. The Open Source Sports organization on Kaggle doesn't pull up anything. One thing mentioned in the description is that the database is copyrighted by Sean Lahman. He is a reporter for the USA Today Network and has focused his work around sports statistics and creating historical databases. One limitation is that because there is no true source that I could find, the data cannot be validated based on other work. While reading through the dataset, the limited documentation on teh column names makes it hard to figure out what they mean. This is discussed more in the continuous variables section.
 
 ### Variables
 
@@ -49,22 +49,102 @@ At first glance, the extensive list may seem daunting, but once you dive in, it 
 
 #### Categorical Variables
 The categorical variables that this dataset contains are:
+- year
 - lgID (League)  
-- tmID (Team)  
-- franchID (Current franchise as of 2011)  
 - confID (Conference)  
-- divID (division)  
+- divID (Division)  
 - rank (Division Rank)  
 - confRank (COnference Rank)  
 - Playoff (Round Reached in Playoffs)  
-- name (Team Name)  
 
 #### Continuous Variables
 
-The Continuous Variables are all of the rest of them which includes 51 variables. The variables starting with 'o_' refer to offensive statistics whereas variables starting with 'd_' refer to defensive statistics. 
+The Continuous Variables are all of the rest of them which includes 51 variables. With limited documentation I am assuming that the variables starting with 'o_' refer to offensive statistics whereas variables starting with 'd_' refer to defensive statistics. Because this can be confusing I am most likely just going to us the statistics starting with 'o_'.
+
+### Data Cleaning
+
+To start off the cleaning process I am going to rename some of the columns to help with understanding.
+```{R}
+
+colnames(basketball)[colnames(basketball)=="lgID"] <- "league"
+colnames(basketball)[colnames(basketball)=="tmID"] <- "team_abbrev"
+colnames(basketball)[colnames(basketball)=="franchID"] <- "franchise_abbrev"
+colnames(basketball)[colnames(basketball)=="confID"] <- "conference"
+colnames(basketball)[colnames(basketball)=="divID"] <- "division"
+colnames(basketball)[colnames(basketball)=="rank"] <- "division_rank"
+colnames(basketball)[colnames(basketball)=="confRank"] <- "conference_rank"
+colnames(basketball)[colnames(basketball)=="playoff"] <- "playoff_finish"
+colnames(basketball)[colnames(basketball)=="name"] <- "team_name"
+```
 
 
+Once I have renamed the columns to something workable, I am going to create another couple of tables with all of the variables (columns) that I need. This will make the data easier to read and will take out unecessary data. The first table that I am going to create is a rankings table. This table will contain the year, team name/abbrev, league, conference, division, division rank, conference, conference rank, and playoff finish. The goal of this table is to separate out the team and their ranking from the on-court statistics.  
+
+```{R}
+ranking <- tibble(year=basketball$year,team_abbrev=basketball$team_abbrev,
+                  team_name=basketball$team_name,league=basketball$league,
+                  division=basketball$division,division_rank=basketball$division_rank,
+                  conference=basketball$conference,conference_rank=basketball$conference_rank,
+                  playoff_finish=basketball$playoff_finish)
+```
+
+The next table that I will make is a statistics table. This table will contain the year, team_abbrev, and all offensive statistics. This will allow me to pair stats with a specific team while also separating that teamas ranking from the on-court data. While creating this table, I am also going to change some of the variable names to make them more understandable.  
+```{R}
+statistics <- tibble(year=basketball$year,team_abbrev=basketball$team_abbrev,
+                     made_field_goal=basketball$o_fgm,attempt_field_goal=basketball$o_fga,
+                     made_free_throw=basketball$o_ftm,attempt_free_throw=basketball$o_fta,
+                     made_3_pointer=basketball$o_3pm,attempt_3_pointer=basketball$o_3pa,
+                     rebounds=basketball$o_reb,assists=basketball$o_asts,
+                     fouls=basketball$o_pf,points_scored=basketball$o_pts)
+```
+
+The next part of data cleaning is to make sure that all of the categorical variables are represented as factors, variables with a set number of options.  
+The first step is to set them as factors.  
+```{R}
+ranking$year <- as.factor(ranking$year)
+statistics$year <- as.factor(statistics$year)
+ranking$league <- as.factor(ranking$league)
+ranking$division <- as.factor(ranking$division)
+ranking$division_rank <- as.factor(ranking$division_rank)
+ranking$conference <- as.factor(ranking$conference)
+ranking$conference_rank <- as.factor(ranking$conference_rank)
+ranking$playoff_finish <- as.factor(ranking$playoff_finish)
+```
+
+Once they are factors, I will check all of the differenct levels, options, that the variable can take on.  
+```{R}
+levels(ranking$year)
+levels(ranking$league)
+levels(ranking$division)
+levels(ranking$division_rank)
+levels(ranking$conference)
+levels(ranking$conference_rank)
+levels(ranking$playoff_finish)
+```
+
+After scanning through the different options for each variable, I am now going to change the value of the levels containing "" to "NA". The blank values represent times when a team wasn't in a division or conference, or didn't make the playoffs.  
+```{R}
+levels(ranking$division)[levels(ranking$division)==""] <- "NA"
+levels(ranking$conference)[levels(ranking$conference)==""] <- "NA"
+levels(ranking$playoff_finish)[levels(ranking$playoff_finish)==""] <- "NA"
+```
+
+### Visualizations
+
+For this first graph, I am going to show the variation in number of fouls per year. This will combine all teams from each year. This graph contains some outliers, where the stat may not have been recorded, but is able to show how the overall fouls being committed changes through the years.   
+```{R}
+ggplot(statistics, aes(x=year,y=fouls)) + geom_boxplot() + theme(axis.text.x = element_text(angle=70,size=7))
+```
+
+The same logic can be used when looking at points scored.  
+
+```{R}
+ggplot(statistics, aes(x=year,y=points_scored)) + geom_boxplot() + theme(axis.text.x = element_text(angle=70,size=7))
+```
 
 
+### Research questions
 
-
+Are some statistics more influential in determining a team's playoff finish?  
+What is the correlation between conference rank and playoff finish/different on-court statistics?  
+What statistical trends seem to carry over from year to year?  
