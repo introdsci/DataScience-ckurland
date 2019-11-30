@@ -1,0 +1,90 @@
+---
+title: "Model Planning and Building"
+output: html_notebook
+---
+
+We first need to load up the work that was previously done in deliverable 1.  
+```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+include <- function(library_name){
+  if( !(library_name %in% installed.packages()) )
+    install.packages(library_name) 
+  library(library_name, character.only=TRUE)
+}
+include("tidyverse")
+include("rvest")
+include("lubridate")
+include("caret")
+include("knitr")
+include("BBmisc")
+purl("deliverable1.Rmd", output = "part1.r")
+source("part1.r")
+```
+
+#Intro
+In this deliverable I am going to scrape NBA game data from the web and use it to try and predict the outcomes of games and a teams quarter by quarter scoring.  
+
+#Getting the data
+The first thing that we need to do is scrape the data from the web.  
+
+```{R echo=FALSE, message=FALSE, error=FALSE, warning=FALSE,results='hide'}
+monthList <- c("october", "november", "december", "january", 
+               "february","march", "april", "may", "june")
+yearList <- c(1950:2011)
+tib <- data.frame()
+boxUrls <- data.frame()
+for(year in yearList) {
+  for(month in monthList) {
+    url <- paste0("https://www.basketball-reference.com/leagues/NBA_",year,"_games-",month,".html")
+    page <- try(read_html(url),TRUE)
+    if( !("try-error" %in% class(page))){
+    colNames <- page %>%
+      html_nodes("table#schedule > thead > tr > th") %>%
+      html_attr("data-stat")
+    if(length(colNames) != 0){
+    dates <- page %>%
+      html_nodes("table#schedule >tbody >tr >th") %>%
+      html_text()
+    boxLink <- page %>%
+      html_nodes("table#schedule >tbody >tr >td.center > a") %>%
+      html_attr("href")
+    dates <- dates[dates != "Playoffs"]
+    
+    scrapedData <- page %>%
+      html_nodes("table#schedule > tbody > tr > td") %>%
+      html_text() %>%
+    matrix(ncol = length(colNames)-1,byrow=TRUE)
+    
+    month_tib <- as.data.frame(cbind(dates,scrapedData),stringAsFactors=FALSE)
+    names(month_tib) <- colNames
+    
+    box_tib <- as.data.frame(boxLink,stringAsFactors=FALSE)
+    
+    boxUrls <- bind_rows(boxUrls,box_tib)
+    tib <- bind_rows(tib,month_tib)
+    }
+    }
+  }
+  
+}
+```
+
+This next part is going to use the box score urls that were gathered in the boxUrls data frame to get the team abbreviations and per quarter scoring for each team for each game.  
+
+```{R}
+
+for(row in nrow(boxUrls)){
+    url <- paste0("https://www.basketball-reference.com",boxUrls[row,1])
+    page <- read_html(url)
+    colNames <- c("awayAbbr","aq1","aq2","aq3","aq4","homeAbbrev","hq1","hq2","hq3","hq4")
+  
+    scrapedData <- page %>%
+      html_nodes("table#line_score > tbody > tr > td") %>%
+      html_text()
+}
+
+```
+
+
+
+
+
