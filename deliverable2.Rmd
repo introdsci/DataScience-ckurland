@@ -21,7 +21,7 @@ source("part1.r")
 ```
 
 #Intro
-In this deliverable I am going to scrape NBA game data from the web and use it to try and predict the outcomes of games and a teams quarter by quarter scoring.  
+In this deliverable I am going to scrape NBA game data from the web and use it to try and predict the outcomes of games.  
 
 #Getting the data
 The first thing that we need to do is scrape the data from the web.  
@@ -44,6 +44,7 @@ for(year in yearList) {
     dates <- page %>%
       html_nodes("table#schedule >tbody >tr >th") %>%
       html_text()
+    
     boxLink <- page %>%
       html_nodes("table#schedule >tbody >tr >td.center > a") %>%
       html_attr("href")
@@ -56,19 +57,52 @@ for(year in yearList) {
     
     month_tib <- as.data.frame(cbind(dates,scrapedData),stringAsFactors=FALSE)
     names(month_tib) <- colNames
+    tib <- bind_rows(tib,month_tib)
     
     box_tib <- as.data.frame(boxLink,stringAsFactors=FALSE)
-    
     boxUrls <- bind_rows(boxUrls,box_tib)
-    tib <- bind_rows(tib,month_tib)
+    
     }
     }
   }
-  
 }
 ```
 
-This next part is going to use the box score urls that were gathered in the boxUrls data frame to get the team abbreviations and per quarter scoring for each team for each game.  
+We also want to make sure that the data we just scraped is in the correct type.  
+```{R}
+  tib$home_pts <- as.numeric(tib$home_pts)
+  tib$visitor_pts <- as.numeric(tib$visitor_pts)
+  tib$attendance  <- as.numeric(gsub(",", "",
+                                     tib$attendance))
+  tib$date_game <- mdy(tib$date_game)
+```
+
+After obtaining all of the data, we now want to organize it in a more condensed table. We are going to create a new table containing the date, home/away teams, their respective score, overtime, attendance and start time.  
+```{R}
+schedule <- tibble(date=tib$date_game,
+                   home_team=tib$home_team_name,
+                   home_score=tib$home_pts,
+                   away_team=tib$visitor_team_name,
+                   away_score=tib$visitor_pts,
+                   overtimes=tib$overtimes,
+                   attendance=tib$attendance,
+                   start_time=tib$game_start_time)
+
+schedule
+```
+
+
+
+
+
+
+
+
+
+
+
+## Not functional
+This next part was supposed to use the box score urls that were gathered in the boxUrls data frame to get the team abbreviations and per quarter scoring for each team for each game. While trying to scraped the team abbrev and quarter scores, the data from the tables that I needed wasn't showing up when I was scraping it. When analyzing the html code of the website, the table and data is there but when trying to scrape it, it show the table as not existing. This section of code is far from done as I stopped once the the table wasn't showing up.  
 
 ```{R}
 
