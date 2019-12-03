@@ -1,0 +1,22 @@
+---
+title: "deliverable2 attempt"
+output: html_notebook
+---
+
+
+## Not functional
+This next part was supposed to use the box score urls that were gathered in the boxUrls data frame to get the team abbreviations and per quarter scoring for each team for each game. While trying to scraped the team abbrev and quarter scores, the data from the tables that I needed wasn't showing up when I was scraping it. When analyzing the html code of the website, the table and data is there but when trying to scrape it, it show the table as not existing. This section of code is far from done as I stopped once the the table wasn't showing up.  
+
+```{R}
+
+for(row in nrow(boxUrls)){
+    url <- paste0("https://www.basketball-reference.com",boxUrls[row,1])
+    page <- read_html(url)
+    colNames <- c("awayAbbr","aq1","aq2","aq3","aq4","homeAbbrev","hq1","hq2","hq3","hq4")
+  
+    scrapedData <- page %>%
+      html_nodes("table#line_score > tbody > tr > td") %>%
+      html_text()
+}
+
+```

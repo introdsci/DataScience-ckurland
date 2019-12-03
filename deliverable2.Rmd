@@ -1,6 +1,8 @@
 ---
 title: "Model Planning and Building"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 We first need to load up the work that was previously done in deliverable 1.  
@@ -87,36 +89,74 @@ schedule <- tibble(date=tib$date_game,
                    overtimes=tib$overtimes,
                    attendance=tib$attendance,
                    start_time=tib$game_start_time)
-
 schedule
 ```
 
+In order to make observations easier, I am going to add each teams' abbreviation to the schedule table. To do this, I first need to create a table with each name and abbreviation matched, which I can do using the ranking table.  
 
+```{R warning=FALSE}
+ranking <- arrange(ranking,year)
+abbrevs <- tibble(abbrev=ranking$team_abbrev,home_team=ranking$team_name,num = 1:nrow(ranking))
+abbrevs$home_team<- as.factor(abbrevs$home_team)
+name_levels <- levels(abbrevs$home_team)
+levels(abbrevs$home_team)[abbrevs$home_team=="Seattle Supersonics"] <- "Seattle SuperSonics"
 
+name_levels <- levels(abbrevs$home_team)
 
-
-
-
-
-
-
-
-## Not functional
-This next part was supposed to use the box score urls that were gathered in the boxUrls data frame to get the team abbreviations and per quarter scoring for each team for each game. While trying to scraped the team abbrev and quarter scores, the data from the tables that I needed wasn't showing up when I was scraping it. When analyzing the html code of the website, the table and data is there but when trying to scrape it, it show the table as not existing. This section of code is far from done as I stopped once the the table wasn't showing up.  
-
-```{R}
-
-for(row in nrow(boxUrls)){
-    url <- paste0("https://www.basketball-reference.com",boxUrls[row,1])
-    page <- read_html(url)
-    colNames <- c("awayAbbr","aq1","aq2","aq3","aq4","homeAbbrev","hq1","hq2","hq3","hq4")
-  
-    scrapedData <- page %>%
-      html_nodes("table#line_score > tbody > tr > td") %>%
-      html_text()
+for(t in name_levels){
+  first_occur <- max(abbrevs$num[abbrevs$home_team==t])
+  abbrevs <- abbrevs %>% filter(!(home_team==t & num !=first_occur))
 }
 
+home_abbrev <- tibble(home_abbrev=abbrevs$abbrev,home_team=abbrevs$home_team)
+away_abbrev <- tibble(away_abbrev=abbrevs$abbrev,away_team=abbrevs$home_team)
+
+
+new_schedule <- schedule %>% 
+                    left_join(home_abbrev, by="home_team")
+new_schedule <- new_schedule %>% 
+                    left_join(away_abbrev, by="away_team")
+new_schedule
 ```
+
+Due to almost half of the data not having values for overtimes, attendance and start time, I am going to remove those from the new_schedule table.  
+```{R}
+
+ind_game <- tibble(year=year(new_schedule$date),
+                   home_abbrev=new_schedule$home_abbrev,
+                   home_team=new_schedule$home_team,
+                   home_score=new_schedule$home_score,
+                   away_abbrev=new_schedule$away_abbrev,
+                   away_team=new_schedule$away_team,
+                   away_score=new_schedule$away_score
+                   )
+ind_game
+```
+
+## Initial Model
+
+For the initial model, I am going to try and predict total game score for the home team using the home team's yearly made/attempted free throws, made/attempted shots,rebounds, assists, fouls, and points.  
+
+First though, we must add the yearly statistics to the ind_game table.  
+```{R}
+ind_game$year <- as.factor(ind_game$year)
+new_game <- ind_game %>% 
+                    left_join(statistics, by=c("home_abbrev"="team_abbrev","year"))
+new_game
+
+simple_model <- lm(new_game, formula= home_score ~ made_field_goal+ 
+                     attempt_field_goal+made_free_throw+
+                     attempt_free_throw+rebounds+
+                     assists+fouls+points_scored)
+summary(simple_model)
+
+```
+
+This model should make sense because as offensive statistics go up, a team should score more points on a nightly basis. Based on the summary of the model, it seems as though all of the variables provided were good predictors of score except attempted free throws. This seems a little weird because logically, the more free throws taken the more points you should score. One thing that may be influencing the output is that there is some missing data in the form of zeros for some of the earlier years when that stat was not kept track of. This model also doesn't take into account the the opposing team and it's defensive/offensive stats. That is something that I think can be looked at in the future when making a more accurate model.
+
+
+
+
 
 
 
