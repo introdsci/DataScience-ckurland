@@ -1,5 +1,6 @@
 ---
 title: "Discovery and Data Prep"
+author: "Connor Kurland"
 output:
   html_document:
     df_print: paged
@@ -54,12 +55,12 @@ The categorical variables that this dataset contains are:
 - confID (Conference)  
 - divID (Division)  
 - rank (Division Rank)  
-- confRank (COnference Rank)  
+- confRank (Conference Rank)  
 - Playoff (Round Reached in Playoffs)  
 
 #### Continuous Variables
 
-The Continuous Variables are all of the rest of them which includes 51 variables. With limited documentation I am assuming that the variables starting with 'o_' refer to offensive statistics whereas variables starting with 'd_' refer to defensive statistics. Because this can be confusing I am most likely just going to us the statistics starting with 'o_'.
+The Continuous Variables are all of the rest of them which includes 51 variables. With limited documentation I am assuming that the variables starting with 'o_' refer to offensive statistics whereas variables starting with 'd_' refer to defensive statistics. Because this can be confusing I am most likely just going to use the statistics starting with 'o_'.
 
 ### Data Cleaning
 
@@ -88,7 +89,7 @@ ranking <- tibble(year=basketball$year,team_abbrev=basketball$team_abbrev,
                   playoff_finish=basketball$playoff_finish)
 ```
 
-The next table that I will make is a statistics table. This table will contain the year, team_abbrev, and all offensive statistics. This will allow me to pair stats with a specific team while also separating that teamas ranking from the on-court data. While creating this table, I am also going to change some of the variable names to make them more understandable.  
+The next table that I will make is a statistics table. This table will contain the year, team_abbrev, and all offensive statistics. This will allow me to pair stats with a specific team while also separating that team's ranking from the on-court data. While creating this table, I am also going to change some of the variable names to make them more understandable.  
 ```{R}
 statistics <- tibble(year=basketball$year,team_abbrev=basketball$team_abbrev,
                      made_field_goal=basketball$o_fgm,attempt_field_goal=basketball$o_fga,

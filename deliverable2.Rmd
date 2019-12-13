@@ -6,7 +6,7 @@ output:
 ---
 
 We first need to load up the work that was previously done in deliverable 1.  
-```{r echo=FALSE, message=FALSE, error=FALSE, warning=FALSE, results='hide'}
+```{r message=FALSE, error=FALSE, warning=FALSE, results='hide'}
 include <- function(library_name){
   if( !(library_name %in% installed.packages()) )
     install.packages(library_name) 
@@ -27,11 +27,14 @@ In this deliverable I am going to scrape NBA game data from the web and use it t
 
 #Getting the data
 The first thing that we need to do is scrape the data from the web.  
+### Note
+This section of code takes approximately two minutes to run.  
 
-```{R echo=FALSE, message=FALSE, error=FALSE, warning=FALSE,results='hide'}
+
+```{R message=FALSE, error=FALSE, warning=FALSE,results='hide'}
 monthList <- c("october", "november", "december", "january", 
                "february","march", "april", "may", "june")
-yearList <- c(1950:2011)
+yearList <- c(1990:2011)
 tib <- data.frame()
 boxUrls <- data.frame()
 for(year in yearList) {
@@ -79,7 +82,15 @@ We also want to make sure that the data we just scraped is in the correct type.
   tib$date_game <- mdy(tib$date_game)
 ```
 
-After obtaining all of the data, we now want to organize it in a more condensed table. We are going to create a new table containing the date, home/away teams, their respective score, overtime, attendance and start time.  
+After obtaining all of the data, we now want to organize it in a more condensed table. We are going to create a new table containing:
+- date: in the format year-month-day that the game took place at  
+- home_team: the full name of the home team in the corresponding game  
+- home_score: the number of points scored by the home team in the corresponding game  
+- away_team: the full name of teh away team in the corresponding game  
+- away_score: the number of points scored by the home team in the corresonding game  
+- overtimes: distinguishes if the game reached overtime and if so, how many. (ex. OT = 1 overtime, 2OT = 2 overtimes and so on)  
+- attendance: the number of people in attendance for teh corresponding game  
+- start time: the start time of the corresponding game formatted as hours:minutes
 ```{R}
 schedule <- tibble(date=tib$date_game,
                    home_team=tib$home_team_name,
@@ -143,16 +154,49 @@ ind_game$year <- as.factor(ind_game$year)
 new_game <- ind_game %>% 
                     left_join(statistics, by=c("home_abbrev"="team_abbrev","year"))
 new_game
+colnames(new_game)[colnames(new_game)=="made_field_goal"] <- "home_yearly_made_field_goal"
+colnames(new_game)[colnames(new_game)=="attempt_field_goal"] <- "home_yearly_attempt_field_goal"
+colnames(new_game)[colnames(new_game)=="made_free_throw"] <- "home_yearly_made_free_throw"
+colnames(new_game)[colnames(new_game)=="attempt_free_throw"] <- "home_yearly_attempt_free_throw"
+colnames(new_game)[colnames(new_game)=="made_3_pointer"] <- "home_yearly_made_3_pointer"
+colnames(new_game)[colnames(new_game)=="attempt_3_pointer"] <- "home_yearly_attempt_3_pointer"
+colnames(new_game)[colnames(new_game)=="rebounds"] <- "home_yearly_rebounds"
+colnames(new_game)[colnames(new_game)=="assists"] <- "home_yearly_assists"
+colnames(new_game)[colnames(new_game)=="fouls"] <- "home_yearly_fouls"
+colnames(new_game)[colnames(new_game)=="points_scored"] <- "home_yearly_points_scored"
 
-simple_model <- lm(new_game, formula= home_score ~ made_field_goal+ 
-                     attempt_field_goal+made_free_throw+
-                     attempt_free_throw+rebounds+
-                     assists+fouls+points_scored)
+```
+This new_game table that we have created now contains all of the statistics we need to do our modeling. One thing that we need to do though in order for our models to not be skewed is to remove all of the rows with NA values. This will make our data tidy.  
+```{R}
+new_game <- drop_na(new_game)
+
+new_game
+```
+
+```{R}
+
+simple_model <- lm(new_game, formula= home_score ~
+                     home_yearly_made_field_goal+ 
+                     home_yearly_attempt_field_goal+
+                     home_yearly_made_free_throw+
+                     home_yearly_attempt_free_throw+
+                     home_yearly_rebounds+
+                     home_yearly_assists+home_yearly_fouls+
+                     home_yearly_points_scored+
+                     home_yearly_made_3_pointer+
+                     home_yearly_attempt_3_pointer)
 summary(simple_model)
 
 ```
 
-This model should make sense because as offensive statistics go up, a team should score more points on a nightly basis. Based on the summary of the model, it seems as though all of the variables provided were good predictors of score except attempted free throws. This seems a little weird because logically, the more free throws taken the more points you should score. One thing that may be influencing the output is that there is some missing data in the form of zeros for some of the earlier years when that stat was not kept track of. This model also doesn't take into account the the opposing team and it's defensive/offensive stats. That is something that I think can be looked at in the future when making a more accurate model.
+```{R}
+ggplot(new_game, aes(x=home_yearly_made_field_goal,y=home_score)) + geom_smooth(method=lm)
+ggplot(new_game, aes(x=home_yearly_made_field_goal,y=home_yearly_assists)) + geom_point()
+
+```
+
+
+This model somewhat make sense but there are a few things that don't seem to add up. Of course, as made field goals goes up, the offensive points will increase, but you'd think that as the amount of shots attempted went up, that point totals would go up, but they do not. Based on the summary of the model, it seems as though all of the variables provided were good predictors of score except attempted free throws. This seems a little weird because logically, the more free throws taken the more points you should score. One thing that may be influencing the output is that there is some missing data in the form of zeros for some of the earlier years when that stat was not kept track of. This model also doesn't take into account the the opposing team and it's defensive/offensive stats. That is something that I think can be looked at in the future when making a more accurate model.
 
 
 
