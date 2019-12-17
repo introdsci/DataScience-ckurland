@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Connor Kurland" />
 
 
 <title>Discovery and Data Prep</title>
@@ -147,6 +147,7 @@ summary {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -179,6 +180,7 @@ summary {
 
 
 <h1 class="title toc-ignore">Discovery and Data Prep</h1>
+<h4 class="author">Connor Kurland</h4>
 
 </div>
 
@@ -238,12 +240,12 @@ summary {
 - confID (Conference)<br />
 - divID (Division)<br />
 - rank (Division Rank)<br />
-- confRank (COnference Rank)<br />
+- confRank (Conference Rank)<br />
 - Playoff (Round Reached in Playoffs)</p>
 </div>
 <div id="continuous-variables" class="section level4">
 <h4>Continuous Variables</h4>
-<p>The Continuous Variables are all of the rest of them which includes 51 variables. With limited documentation I am assuming that the variables starting with ‘o_’ refer to offensive statistics whereas variables starting with ‘d_’ refer to defensive statistics. Because this can be confusing I am most likely just going to us the statistics starting with ‘o_’.</p>
+<p>The Continuous Variables are all of the rest of them which includes 51 variables. With limited documentation I am assuming that the variables starting with ‘o_’ refer to offensive statistics whereas variables starting with ‘d_’ refer to defensive statistics. Because this can be confusing I am most likely just going to use the statistics starting with ‘o_’.</p>
 </div>
 </div>
 <div id="data-cleaning" class="section level3">
@@ -264,7 +266,7 @@ colnames(basketball)[colnames(basketball)==&quot;name&quot;] &lt;- &quot;team_na
                   division=basketball$division,division_rank=basketball$division_rank,
                   conference=basketball$conference,conference_rank=basketball$conference_rank,
                   playoff_finish=basketball$playoff_finish)</code></pre>
-<p>The next table that I will make is a statistics table. This table will contain the year, team_abbrev, and all offensive statistics. This will allow me to pair stats with a specific team while also separating that teamas ranking from the on-court data. While creating this table, I am also going to change some of the variable names to make them more understandable.</p>
+<p>The next table that I will make is a statistics table. This table will contain the year, team_abbrev, and all offensive statistics. This will allow me to pair stats with a specific team while also separating that team’s ranking from the on-court data. While creating this table, I am also going to change some of the variable names to make them more understandable.</p>
 <pre class="r"><code>statistics &lt;- tibble(year=basketball$year,team_abbrev=basketball$team_abbrev,
                      made_field_goal=basketball$o_fgm,attempt_field_goal=basketball$o_fga,
                      made_free_throw=basketball$o_ftm,attempt_free_throw=basketball$o_fta,
@@ -300,11 +302,11 @@ ranking$playoff_finish &lt;- as.factor(ranking$playoff_finish)</code></pre>
 <pre class="r"><code>levels(ranking$conference)</code></pre>
 <pre><code>## [1] &quot;&quot;   &quot;EC&quot; &quot;WC&quot;</code></pre>
 <pre class="r"><code>levels(ranking$conference_rank)</code></pre>
-<pre><code>##  [1] &quot;0&quot;  &quot;1&quot;  &quot;2&quot;  &quot;3&quot;  &quot;4&quot;  &quot;5&quot;  &quot;6&quot;  &quot;7&quot;  &quot;8&quot;  &quot;9&quot;  &quot;10&quot; &quot;11&quot; &quot;12&quot; &quot;13&quot;
-## [15] &quot;14&quot; &quot;15&quot;</code></pre>
+<pre><code>##  [1] &quot;0&quot;  &quot;1&quot;  &quot;2&quot;  &quot;3&quot;  &quot;4&quot;  &quot;5&quot;  &quot;6&quot;  &quot;7&quot;  &quot;8&quot;  &quot;9&quot;  &quot;10&quot; &quot;11&quot; &quot;12&quot; &quot;13&quot; &quot;14&quot;
+## [16] &quot;15&quot;</code></pre>
 <pre class="r"><code>levels(ranking$playoff_finish)</code></pre>
-<pre><code>##  [1] &quot;&quot;   &quot;AC&quot; &quot;C1&quot; &quot;CF&quot; &quot;CS&quot; &quot;D1&quot; &quot;DF&quot; &quot;DR&quot; &quot;DS&quot; &quot;DT&quot; &quot;F&quot;  &quot;LC&quot; &quot;NC&quot; &quot;R1&quot;
-## [15] &quot;SF&quot; &quot;WC&quot;</code></pre>
+<pre><code>##  [1] &quot;&quot;   &quot;AC&quot; &quot;C1&quot; &quot;CF&quot; &quot;CS&quot; &quot;D1&quot; &quot;DF&quot; &quot;DR&quot; &quot;DS&quot; &quot;DT&quot; &quot;F&quot;  &quot;LC&quot; &quot;NC&quot; &quot;R1&quot; &quot;SF&quot;
+## [16] &quot;WC&quot;</code></pre>
 <p>After scanning through the different options for each variable, I am now going to change the value of the levels containing “” to “NA”. The blank values represent times when a team wasn’t in a division or conference, or didn’t make the playoffs.</p>
 <pre class="r"><code>levels(ranking$division)[levels(ranking$division)==&quot;&quot;] &lt;- &quot;NA&quot;
 levels(ranking$conference)[levels(ranking$conference)==&quot;&quot;] &lt;- &quot;NA&quot;

@@ -17,8 +17,10 @@ The dataset that I have chosen to work with for the first deliverable contains i
 ### Dataset Initialization
 
 Here I am going to load in the dataset into the variable named basketball.
-```{R}
-suppressMessages(library(tidyverse))
+
+
+```{r deliverable1-a, message=FALSE}
+library(tidyverse)
 basketball <- read.csv("basketball_teams.csv")
 ```
 

@@ -1,5 +1,6 @@
 ---
 title: "Model Planning and Building"
+author: "Connor Kurland"
 output:
   html_document:
     df_print: paged
