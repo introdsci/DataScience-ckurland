@@ -202,7 +202,7 @@ source(&quot;part1.r&quot;)
 source(&quot;part2.r&quot;)</code></pre>
 <div id="revisions" class="section level1">
 <h1>Revisions</h1>
-<p>To start this deliverable off, I am going to dive in to the changes that I have made on the previous deliverable. One major change that has occured is that I have cut the data down in almost half. I am now only pouring over the years 1990-2011, instead of from 1950. This is due to the fact that there was a lot of missing data in the earlier years and that I am using 3-point statistics and the 3-point line wasn’t introduced until 1979. I know that I am using for loops to loop through the vectors but when I switched it over to using the ‘sapply’ function, it ran at the axact same speed and not any quicker. Also, I couldn’t get it to get the right data and create the correct tibbles with ‘sapply’. I have also explained the variables better while changing some of their names for better understanding. I have also made sure to remove NA values from the tables so to make them tidy.</p>
+<p>To start this deliverable off, I am going to dive in to the changes that I have made on the previous deliverable. One major change that has occured is that I have cut the data down in almost half. I am now only pouring over the years 1990-2011, instead of from 1950. This is due to the fact that there was a lot of missing data in the earlier years and that I am using 3-point statistics and the 3-point line wasn’t introduced until 1979. I know that I am using for loops to loop through the vectors but when I switched it over to using the ‘sapply’ function, it ran at the exact same speed and not any quicker. Also, I couldn’t get it to get the right data and create the correct tibbles with ‘sapply’. I have also explained the variables better while changing some of their names for better understanding. I have also made sure to remove NA values from the tables to make them tidy.</p>
 </div>
 <div id="cross-validation" class="section level1">
 <h1>Cross-Validation</h1>
@@ -305,7 +305,7 @@ results</code></pre>
 <p>Looking at the results that we get from the model it may seem confusing, to help with that, here are what each of those terms mean.<br />
 - R2 or R-squared: This represents the squared correlation between the observed outcomes and the predicted values, the higher the value the better the model.<br />
 - RMSE or Root Mean Squared Error: This measures the average error of the predictions compared to the outcome of the observation. Average error is the average difference between the prediction and the actual outcome. The lower the better.<br />
-- MAE or Mean Absolute Error: Very similar to the RMSE value but is less sensitive to outliers. This takes the absolute differnce of the outcome values and predicted values.</p>
+- MAE or Mean Absolute Error: Very similar to the RMSE value but is less sensitive to outliers. This takes the absolute difference of the outcome values and predicted values.</p>
 <p>The R2 value that we got doesn’t bode well for the validity of our model but that doesn’t necessarily mean the model is bad. There are other ways to measure effectiveness. To help get a better understanding of our error rate, we will divide the RMSE by the average value of home_score.</p>
 <pre class="r"><code>error_rate &lt;- results$RMSE/mean(test$home_score)
 error_rate2 &lt;- results$MAE/mean(test$home_score)
