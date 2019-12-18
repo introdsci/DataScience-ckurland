@@ -6,6 +6,7 @@ output:
     df_print: paged
 ---
 
+This works because the purl and source calls are commented out in deliverable2.Rmd.  
 ```{r message=FALSE, error=FALSE, warning=FALSE, results='hide'}
 include <- function(library_name){
   if( !(library_name %in% installed.packages()) )
@@ -24,9 +25,82 @@ source("part2.r")
 ```
 
 
-# Revision
+# Revisions
 
 To start this deliverable off, I am going to dive in to the changes that I have made on the previous deliverable. One major change that has occured is that I have cut the data down in almost half. I am now only pouring over the years 1990-2011, instead of from 1950. This is due to the fact that there was a lot of missing data in the earlier years and that I am using 3-point statistics and the 3-point line wasn't introduced until 1979. I know that I am using for loops to loop through the vectors but when I switched it over to using the 'sapply' function, it ran at the axact same speed and not any quicker. Also, I couldn't get it to get the right data and create the correct tibbles with 'sapply'. I have also explained the variables better while changing some of their names for better understanding. I have also made sure to remove NA values from the tables so to make them tidy.
+
+
+# Cross-Validation
+
+```{R}
+summary(simple_model)
+```
+
+In order to test the effectiveness of the model created, we are going to use cross-validation practices. Before we do that, we must refine the simple model a little bit (shown above). Based on the first model's results, home_yearly_attempt_free_throw and home_yearly_made_3_pointer were not significant predictors. So we are going to create a quality model without those two. 
+
+```{R}
+quality_model <- lm(new_game, formula= home_score ~
+                     home_yearly_made_field_goal+ 
+                     home_yearly_attempt_field_goal+
+                     home_yearly_made_free_throw+
+                     home_yearly_rebounds+
+                     home_yearly_assists+home_yearly_fouls+
+                     home_yearly_points_scored+
+                     home_yearly_attempt_3_pointer)
+summary(quality_model)
+
+```
+
+We are now going to take a sample of our dataset to train the model and give us its predictions.  
+```{R}
+set.seed(385)
+train_samples <- new_game$home_score %>% na.omit() %>%
+  createDataPartition(p = 0.75, list = FALSE)
+train  <- new_game[train_samples, ]
+test <- new_game[-train_samples, ]
+score_model <- lm(new_game, formula= home_score ~
+                     home_yearly_made_field_goal+ 
+                     home_yearly_attempt_field_goal+
+                     home_yearly_made_free_throw+
+                     home_yearly_rebounds+
+                     home_yearly_assists+home_yearly_fouls+
+                     home_yearly_points_scored+
+                     home_yearly_attempt_3_pointer)
+predictions <- score_model %>% predict(test)
+results <- data.frame( R2 = R2(predictions, test$home_score),
+            RMSE = RMSE(predictions, test$home_score),
+            MAE = MAE(predictions, test$home_score))
+results
+ggplot(test,aes(x=predictions,y=home_score)) + geom_point()
+
+```
+
+Looking at the results that we get from the model it may seem confusing, to help with that, here are what each of those terms mean.  
+- R2 or R-squared: This represents the squared correlation between the observed outcomes and the predicted values, the higher the value the better the model.  
+- RMSE or Root Mean Squared Error: This measures the average error of the predictions compared to the outcome of the observation. Average error is the average difference between the prediction and the actual outcome. The lower the better.  
+- MAE or Mean Absolute Error: Very similar to the RMSE value but is less sensitive to outliers. This takes the absolute differnce of the outcome values and predicted values.  
+
+The R2 value that we got doesn't bode well for the validity of our model but that doesn't necessarily mean the model is bad. There are other ways to measure effectiveness.
+To help get a better understanding of our error rate, we will divide the RMSE by the average value of home_score.  
+```{R}
+error_rate <- results$RMSE/mean(test$home_score)
+error_rate2 <- results$MAE/mean(test$home_score)
+error_rate
+error_rate2
+```
+
+The value we get for error_rate indicates that there is errors about 12% of the time and for error_rate2, which uses the MAE value, it is even less at about 9.5%. This seems acceptable given that we are trying to predict daily stats with yearly stats.
+
+Thinking about one of my research questions, although not directly answering if certain offensive stats influence playoff finish, I can talk about if certain stats influence a home teams score, which does effect a teams playoff finish. Based on the Pr value in our model, although all of the stats are important and effective predictors, a few seem to be even better than the rest. Those include home_yearly_made_field_goal, home_yearly_attempt_field_goal, home_yearly_rebounds, and home_yearly_fouls. 
+With this knowledge, it can better help teams increase there points scored on a nightly basis by putting an emphasis on these skills.  
+
+
+# Operationalize
+
+The goal of each game in the NBA is to outscore your opponent, which in turn, means trying to score the most points possible. There are a lot of statistics in the game of basketball and it can sometimes get confusing to know what is what. By modeling some of the offensive statistics, it makes it possible to pinpoint areas that provide the greatest value in terms of a teams final score. One way to implement this would be to use the data gathered and pass it along to every team as a guide to scoring the most points with all of the most important stats listed. After allowing the team to maybe alter their game plan or rosters over the course of the year, I would then do another study into that season's statistics and see if the adjustments played an effect on the scores while also testing to see if other statistics stand out as infulential. This can help teams better prepare for the future and plan their drafts and roster changes to better their chances at scoring more points. This in turn should help that team place better in the conference/division and the playoffs. There aren't really any ethical issues that may arise. The only thing would be that players may be outcasted due to them not possessing the right skills based on the study.  
+
+
+
 
 
 

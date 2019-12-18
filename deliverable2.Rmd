@@ -6,6 +6,7 @@ output:
     df_print: paged
 ---
 
+ 
 We first need to load up the work that was previously done in deliverable 1.  
 ```{r message=FALSE, error=FALSE, warning=FALSE, results='hide'}
 include <- function(library_name){

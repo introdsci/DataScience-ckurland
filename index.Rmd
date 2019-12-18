@@ -24,6 +24,6 @@ This deliverable brings in another dataset that will help make predictions on in
 
 ### 3. Results and Operationalization
 
-The third and final deliverable will dive into any additional models and insights that may have come up during the process of creating the first two deliverables.
+The third and final deliverable will dive into any additional models and insights that may have come up during the process of creating the first two deliverables. It will also wrap up how this information gathered can influence the game of basketball.
 
 [Third deliverable](deliverable3.html)
