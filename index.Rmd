@@ -26,4 +26,4 @@ This deliverable brings in another dataset that will help make predictions on in
 
 The third and final deliverable will dive into any additional models and insights that may have come up during the process of creating the first two deliverables.
 
-[Third deliverable](deliverable3.nb.html)
+[Third deliverable](deliverable3.html)

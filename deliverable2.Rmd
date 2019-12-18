@@ -19,8 +19,8 @@ include("lubridate")
 include("caret")
 include("knitr")
 include("BBmisc")
-purl("deliverable1.Rmd", output = "part1.r")
-source("part1.r")
+#purl("deliverable1.Rmd", output = "part1.r")
+#source("part1.r")
 ```
 
 #Intro

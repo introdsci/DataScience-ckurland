@@ -19,6 +19,7 @@ include("caret")
 include("knitr")
 include("BBmisc")
 purl("deliverable2.Rmd", output = "part2.r")
+source("part1.r")
 source("part2.r")
 ```
 
