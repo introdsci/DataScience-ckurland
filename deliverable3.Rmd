@@ -75,6 +75,7 @@ ggplot(test,aes(x=predictions,y=home_score)) + geom_point()
 
 ```
 
+The graph that is being shown tries to help visualize the validity of the model. It shows that as our predictions increase, so does the actual value ofthe home score.  
 Looking at the results that we get from the model it may seem confusing, to help with that, here are what each of those terms mean.  
 - R2 or R-squared: This represents the squared correlation between the observed outcomes and the predicted values, the higher the value the better the model.  
 - RMSE or Root Mean Squared Error: This measures the average error of the predictions compared to the outcome of the observation. Average error is the average difference between the prediction and the actual outcome. The lower the better.  
